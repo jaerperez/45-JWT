@@ -1,49 +1,40 @@
 
-const url = 'http://localhost:3000/login';
 const button = document.getElementById("login");
 
-button.addEventListener('click', async function () {
-    const usernameInputValue = document.getElementById('username').value;
-    const passwordInputValue = document.getElementById('password').value;
 
-    console.log(usernameInputValue);
-    console.log(passwordInputValue);
+document.addEventListener("DOMContentLoaded", (ev) => {
+    button.addEventListener("click", async (ev) => {
+        ev.preventDefault();
 
-    const data = {
-        username: usernameInputValue,
-        password: passwordInputValue
-    }
+        const usernameInputValue = document.getElementById("username").value;
+        const passwordInputValue = document.getElementById("password").value;
 
-    console.log(data);
-
-    const response = await fetch(url, {
-        method: 'POST', // or 'PUT'
-        mode: "no-cors",
-        body: JSON.stringify(data), // data can be `string` or {object}!
-        headers: {
-            'Content-Type': 'application/json'
+        const bodyPost={
+            username:usernameInputValue,
+            pws:passwordInputValue
         }
-    });
 
-    response.then(res => res.json())
-        .catch(error => alert('Error:', error))
-        .then(response => alert('Success:', response));
-});
+        var myHeader = new Headers();
+        myHeader.append("Content-Type", "application/json");
+        try {
 
+            const responselogin = await fetch('http://localhost:3000/login', {
+                method: "POST",
+                body: JSON.stringify(bodyPost),
+                headers: myHeader,
+            });
+            const responseObject = await responselogin.json();
+            if (responselogin.status == 200) {
+                alert("login exitoso");
+                localStorage.setItem("token", JSON.stringify(responseObject));
+              } else {
+                alert(responseObject.error);
+              }
 
-/*try {
-    const responseObject = await fetch(, {
-        method: 'POST',
-        mode:"no-cors",
-        body: JSON.stringify(bodyPost),
-        headders: {
-            'Content-Type': 'application/json'
+        } catch (error) {
+            alert("algo salió mal");
         }
-    });
-    const resp = await responseObject.json();
-    console.log(resp);
+    })
+})
 
-} catch (e) {
-    alert('Error de autenticación revise su username o password');
-}*/
 

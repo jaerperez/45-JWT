@@ -40,22 +40,26 @@ const USERS = [
     {
         id: 1,
         username: "jperez",
-        pws: "M1mo100"
+        pws: "M1mo100",
+        rol:"admin"
     },
     {
         id: 2,
         username: "nosorio",
-        pws: "cal!100"
+        pws: "cal!100",
+        rol:"admin"
     },
     {
         id: 3,
         username: "peter100",
-        pws: "H3l4d0500"
+        pws: "H3l4d0500",
+        rol:"user"
     },
     {
         id: 4,
         username: "giselap",
-        pws: "d3s4yun0"
+        pws: "d3s4yun0",
+        rol:"user"
     },
 ]
 
@@ -82,9 +86,8 @@ const middlewareValidarinput = (req, res, next) => {
     if (!req.body.username || !req.body.pws) {
         res.status(400).json({ error: "Por favor digitar los datos completos" });
     } else {
-        const usernamePost = req.body.username;
-        const pwsPost = req.body.pws;
-        const credcorrect = USERS.find((usu) => usu.username == usernamePost && usu.pws == pwsPost);
+        const credcorrect = USERS.find((usu) => usu.username == req.body.username && usu.pws == req.body.pws);
+        console.log(credcorrect);
         if (!credcorrect) {
             res.status(401).json({ error: "User or password incorrect" });
         } else {
@@ -94,7 +97,17 @@ const middlewareValidarinput = (req, res, next) => {
     }
 };
 
-server.post("/login", middlewareValidarinput, (req, res) => {
+
+const roleauthorization =(req,res,next)=>{
+    const rolaut="admin";
+    if(req.credcorrect.rol!==rolaut){
+        res.status(403).json({ error: "You do not have permissions to access features"});
+    }else{
+        next();
+    }
+}
+
+server.post("/login", middlewareValidarinput, roleauthorization, (req, res) => {
     const token = jwt.sign(
         {
             nombre: req.credcorrect.username,
@@ -104,7 +117,7 @@ server.post("/login", middlewareValidarinput, (req, res) => {
         secretJWT,
         { expiresIn: "60m" }
     );
-    res.status(201).json({ token });
+    res.status(200).json({token});
 })
 
 server.listen(PORT, () => {
